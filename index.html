@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Would you like to go out with me? :)</title>
+  <title>OP Dashboard</title>
   <style>
     :root{
       --ink:#1f2937; --muted:#6b7280;
       --accent:#2563eb; --border: rgba(15, 23, 42, .15);
       --backdrop: rgba(0,0,0,.35);
+      --card:#ffffff;
     }
     *{box-sizing:border-box}
 
@@ -19,7 +20,10 @@
       color:var(--ink);
       background: linear-gradient(to top, #a8e6a1 0%, #d6f5d6 50%, #f5fff5 100%);
       background-attachment: fixed;
+      position: relative;
+      min-height: 100dvh;
     }
+    /* rolling hills */
     body::before {
       content: "";
       position: fixed;
@@ -29,92 +33,90 @@
                   radial-gradient(circle at 80% 100%, #7fcf85 200px, transparent 201px);
       background-repeat: no-repeat;
       background-size: 50% 100%, 50% 100%;
-      z-index: -2;
+      z-index: 0;
+      pointer-events: none;
     }
+    /* panda */
     body::after {
       content: "";
       position: fixed;
-      bottom: 20px; right: 20px;
+      bottom: 18px; right: 18px;
       width: 120px; height: 120px;
       background: url('https://upload.wikimedia.org/wikipedia/commons/0/0f/Giant_Panda_vector.svg') no-repeat center/contain;
-      opacity: 0.9;
-      z-index: -1;
+      opacity: 0.95;
+      z-index: 0;
+      pointer-events: none;
     }
 
-    /* Glassmorphism look */
-    .glass{
-      background: rgba(255,255,255,0.65);
-      backdrop-filter: blur(12px) saturate(160%);
-      -webkit-backdrop-filter: blur(12px) saturate(160%);
-      border:1px solid var(--border);
-      border-radius:16px;
-      box-shadow:0 8px 24px rgba(2,8,23,.12);
-    }
+    /* content sits above background */
+    .page { position: relative; z-index: 1; }
 
     header{padding:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     h1{margin:0;font-size:24px;font-weight:800}
     header p{margin:0;color:var(--muted);flex:1 1 100%}
     .top-actions{margin-left:auto;display:flex;gap:8px}
     .btn{background:var(--accent);border:none;color:#fff;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer}
-    .btn.ghost{background:rgba(255,255,255,0.7);color:#111827;border:1px solid var(--border)}
+    .btn.ghost{background:#e5e7eb;color:#111827;border:1px solid var(--border)}
 
     .wrap{padding:0 16px 20px; max-width:1100px; margin:0 auto}
     .list{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:14px}
     @media (max-width:900px){.list{grid-template-columns:1fr}}
 
-    .card{padding:16px;display:flex;gap:10px;flex-direction:column}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;gap:10px;flex-direction:column;box-shadow:0 8px 24px rgba(2,8,23,.08)}
     .card h3{margin:0 0 6px;font-size:18px}
     .k{color:var(--muted)}
     .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
-    .badge{background:rgba(255,255,255,0.6);border:1px solid var(--border);color:#374151;padding:4px 8px;border-radius:999px;font-size:12px}
+    .badge{background:#f3f4f6;border:1px solid var(--border);color:#374151;padding:4px 8px;border-radius:999px;font-size:12px}
     .cta{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
     a.inline{color:#1d4ed8;text-decoration:none}
 
-    /* Single mobile/desktop drawer for filters */
+    /* Single drawer for filters (works on desktop & mobile) */
     .drawer-back{display:none}
-    .drawer{position:fixed;left:0;right:0;top:0;background:rgba(255,255,255,0.8);
+    .drawer{position:fixed;left:0;right:0;top:0;background:#ffffff;
             border-bottom:1px solid var(--border); border-radius:0 0 16px 16px; padding:12px;
             box-shadow:0 12px 32px rgba(2,8,23,.2); transform:translateY(-110%); transition:transform .25s ease; z-index:21}
     .drawer.show{transform:translateY(0)}
     .drawer-back.show{position:fixed;inset:0;background:var(--backdrop);display:block;z-index:20}
-    .filters{display:grid;gap:10px}
-    .field{background:rgba(255,255,255,0.55);border:1px solid var(--border);border-radius:12px;padding:10px}
+    .filters{display:grid;gap:10px;max-width:1100px;margin:0 auto}
+    .field{background:#fafafa;border:1px solid var(--border);border-radius:12px;padding:10px}
     .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
     .field select,.field input[type="text"]{
       width:100%;background:#f8fafc;color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:10px
     }
     .toggle{display:flex;align-items:center;gap:8px;font-size:14px;color:#111827}
     .toggle input{transform:scale(1.1)}
-    .drawer .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .drawer .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;max-width:1100px;margin-left:auto;margin-right:auto}
 
     /* Popover */
     .popover{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:var(--backdrop);z-index:30}
     .popover.show{display:flex}
-    .sheet{background:rgba(255,255,255,0.85);backdrop-filter: blur(10px);border:1px solid var(--border);border-radius:16px;padding:16px;max-width:520px;width:92%}
+    .sheet{background:#ffffff;border:1px solid var(--border);border-radius:16px;padding:16px;max-width:520px;width:92%}
     .sheet h4{margin:0 0 8px}
     .row{display:flex;gap:10px;align-items:center;margin:8px 0}
     .row input[type="text"]{flex:1;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:8px}
   </style>
 </head>
 <body>
-  <header class="glass">
-    <h1>OP Dashboard</h1>
-    <p><em>I figure you're familiar with dashboards, so this should be easy!</em></p>
-    <div class="top-actions">
-      <button id="openDrawer" class="btn">Filters <span id="activeCount" style="font-weight:600;"></span></button>
-      <button id="copyLink" class="btn ghost">Copy filter link</button>
-    </div>
-  </header>
+  <div class="page">
+    <header>
+      <h1>OP Dashboard</h1>
+      <p><em>I figure you're familiar with dashboards, so this should be easy! Would you like to go out with me?</em></p>
+      <div class="top-actions">
+        <button id="openDrawer" class="btn">Filters <span id="activeCount" style="font-weight:600;"></span></button>
+        <button id="copyLink" class="btn ghost">Copy filter link</button>
+      </div>
+    </header>
 
-  <div class="wrap">
-    <main>
-      <div id="list" class="list"></div>
-    </main>
+    <div class="wrap">
+      <main>
+        <div id="list" class="list"></div>
+      </main>
+    </div>
   </div>
 
   <!-- Single Filters Drawer -->
   <div class="drawer-back" id="drawerBack"></div>
-  <div class="drawer glass" id="drawer">
+  <div class="drawer" id="drawer">
     <div class="filters" id="filters"></div>
     <div class="actions">
       <button class="btn" id="applyDrawer">Apply</button>
@@ -138,10 +140,10 @@
   </div>
 
 <script>
-// ---------- Owner contact ----------
+/* ---------- Owner contact ---------- */
 const OWNER_PHONE = '919838006777'; // WhatsApp number only
 
-// ---------- Plans ----------
+/* ---------- Plans (CP escape room removed; South only) ---------- */
 const PLANS = [
   {
     id:'begum',
@@ -193,13 +195,12 @@ const PLANS = [
     days:['Saturday','Weekend'],times:['Evening'],
     commitment:'3–4 hrs'
   },
-
   {
     id:'escapesouth',
     title:'Escape Room – The Hidden Hour (South Delhi)',
     subtitle:'Pick a theme & crack codes',
     type:'Game',
-    url:'https://www.thehiddenhour.com/delhi/connaught-place', /* replace if you have a distinct south link */
+    url:'https://www.thehiddenhour.com/delhi/connaught-place', /* replace with South link if you have it */
     venue:'South Delhi',location:'South',
     days:['Weekday','Weekend'],times:['Afternoon','Evening'],
     commitment:'2–3 hrs'
@@ -207,7 +208,8 @@ const PLANS = [
 ];
 
 const OWN_ID='ownplan'; const NI_ID='notinterested';
-  // ---------- URL state ----------
+
+/* ---------- URL state ---------- */
 const params = new URLSearchParams(location.search);
 const state = {
   q: params.get('q') || '',
@@ -229,7 +231,7 @@ function setParam(k,v){
   history.replaceState(null,'', url.endsWith('?')?url.slice(0,-1):url);
 }
 
-// ---------- Build single filter form ----------
+/* ---------- Build single filter form ---------- */
 function filterFormHTML(){
   return `
     <div class="field">
@@ -315,7 +317,7 @@ function bindFilterEvents(){
 }
 bindFilterEvents();
 
-// ---------- Active filter count ----------
+/* ---------- Active filter count ---------- */
 function activeCount(){
   if(state.disabled) return 0;
   return ['q','loc','day','time','commit','type'].filter(k=>state[k]).length;
@@ -325,7 +327,7 @@ function updateActiveCount(){
   document.getElementById('activeCount').textContent = n ? `(${n} active)` : '';
 }
 
-// ---------- Drawer behaviour ----------
+/* ---------- Drawer behaviour ---------- */
 const drawer = document.getElementById('drawer');
 const back   = document.getElementById('drawerBack');
 document.getElementById('openDrawer').onclick = ()=>{
@@ -346,7 +348,7 @@ document.getElementById('reset').onclick = ()=>{
   render();
 };
 
-// ---------- Helpers ----------
+/* ---------- Helpers ---------- */
 function passFilters(p){
   if(state.disabled) return true;
   if(state.q){
@@ -361,7 +363,7 @@ function passFilters(p){
   return true;
 }
 
-// ---------- Rendering ----------
+/* ---------- Rendering ---------- */
 function render(){
   updateActiveCount();
   const list = document.getElementById('list');
@@ -370,7 +372,7 @@ function render(){
   const items = PLANS.filter(passFilters);
   if(items.length === 0){
     const empty = document.createElement('div');
-    empty.className = 'card glass';
+    empty.className = 'card';
     empty.innerHTML = `<h3>No matching plans</h3><p class="k">Try clearing a filter or disable filters.</p>`;
     list.appendChild(empty);
   } else {
@@ -382,7 +384,7 @@ function render(){
 
 function planCard(p){
   const c = document.createElement('div');
-  c.className = 'card glass';
+  c.className = 'card';
   const timeBadge = (p.times||[]).join(' / ') || 'Any time';
   const dayBadge  = (p.days||[]).join(' / ') || 'Any day';
   c.innerHTML = `
@@ -406,7 +408,7 @@ function planCard(p){
 
 function ownPlanCard(){
   const c = document.createElement('div');
-  c.className = 'card glass';
+  c.className = 'card';
   c.innerHTML = `
     <div class="badges"><span class="badge">Custom</span></div>
     <h3>Make your own plan</h3>
@@ -424,7 +426,7 @@ function ownPlanCard(){
 
 function notInterestedCard(){
   const c = document.createElement('div');
-  c.className = 'card glass';
+  c.className = 'card';
   c.innerHTML = `
     <div class="badges"><span class="badge">Skip</span></div>
     <h3>Not interested</h3>
@@ -439,14 +441,14 @@ function notInterestedCard(){
   return c;
 }
 
-// Copy filter link (header)
+/* Copy filter link (header) */
 document.getElementById('copyLink').onclick = ()=>{
   navigator.clipboard.writeText(location.href)
     .then(()=>alert('Filter link copied!'))
     .catch(()=>alert('Could not copy. Please copy from address bar.'));
 };
 
-// ---------- Confirm popover ----------
+/* ---------- Confirm popover ---------- */
 const pop = document.getElementById('pop');
 const withMeal = document.getElementById('withMeal');
 const customPlan = document.getElementById('customPlan');
@@ -491,7 +493,7 @@ function shareSelection(via){
 document.getElementById('copyChoice').onclick = ()=> shareSelection('copy');
 document.getElementById('waChoice').onclick   = ()=> shareSelection('wa');
 
-// ---------- Initial mount ----------
+/* ---------- Initial mount ---------- */
 function init(){
   syncControls();
   render();
