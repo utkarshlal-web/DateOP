@@ -6,109 +6,98 @@
   <title>OP Dashboard</title>
   <style>
     :root{
-      --bg:#fbfbfd; --panel:#ffffff; --card:#ffffff; --ink:#1f2937; --muted:#6b7280;
-      --accent:#2563eb; --border: rgba(15, 23, 42, .12);
+      --ink:#1f2937; --muted:#6b7280;
+      --accent:#2563eb; --border: rgba(15, 23, 42, .15);
       --backdrop: rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
+
+    /* 🌿 Panda landscape background */
     body{
-      margin:0;background:var(--bg);
-      color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      margin:0;
+      font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--ink);
+      background: linear-gradient(to top, #a8e6a1 0%, #d6f5d6 50%, #f5fff5 100%);
+      background-attachment: fixed;
     }
-    header{padding:16px 16px 8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-    h1{margin:0;font-size:22px;font-weight:800}
+    body::before {
+      content: "";
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 200px;
+      background: radial-gradient(circle at 20% 100%, #6fbf73 200px, transparent 201px),
+                  radial-gradient(circle at 80% 100%, #7fcf85 200px, transparent 201px);
+      background-repeat: no-repeat;
+      background-size: 50% 100%, 50% 100%;
+      z-index: -2;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      bottom: 20px; right: 20px;
+      width: 120px; height: 120px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/0/0f/Giant_Panda_vector.svg') no-repeat center/contain;
+      opacity: 0.9;
+      z-index: -1;
+    }
+
+    /* Glassmorphism look */
+    .glass{
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:0 8px 24px rgba(2,8,23,.12);
+    }
+
+    header{padding:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    h1{margin:0;font-size:24px;font-weight:800}
     header p{margin:0;color:var(--muted);flex:1 1 100%}
     .top-actions{margin-left:auto;display:flex;gap:8px}
     .btn{background:var(--accent);border:none;color:#fff;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer}
-    .btn.ghost{background:#e5e7eb;color:#111827;border:1px solid var(--border)}
-    .wrap{display:grid;grid-template-columns:320px 1fr;gap:18px;padding:0 16px 20px}
-    @media (max-width:900px){.wrap{grid-template-columns:1fr}}
+    .btn.ghost{background:rgba(255,255,255,0.7);color:#111827;border:1px solid var(--border)}
 
-    /* Sidebar panel (desktop) */
-    .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px;position:sticky;top:12px;height:max-content;box-shadow:0 8px 24px rgba(2,8,23,.05)}
-    .panel h2{margin:6px 6px 10px;font-size:13px;text-transform:uppercase;color:var(--muted);letter-spacing:.12em}
+    .wrap{padding:0 16px 20px; max-width:1100px; margin:0 auto}
+    .list{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:14px}
+    @media (max-width:900px){.list{grid-template-columns:1fr}}
+
+    .card{padding:16px;display:flex;gap:10px;flex-direction:column}
+    .card h3{margin:0 0 6px;font-size:18px}
+    .k{color:var(--muted)}
+    .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+    .badge{background:rgba(255,255,255,0.6);border:1px solid var(--border);color:#374151;padding:4px 8px;border-radius:999px;font-size:12px}
+    .cta{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
+    a.inline{color:#1d4ed8;text-decoration:none}
+
+    /* Single mobile/desktop drawer for filters */
+    .drawer-back{display:none}
+    .drawer{position:fixed;left:0;right:0;top:0;background:rgba(255,255,255,0.8);
+            border-bottom:1px solid var(--border); border-radius:0 0 16px 16px; padding:12px;
+            box-shadow:0 12px 32px rgba(2,8,23,.2); transform:translateY(-110%); transition:transform .25s ease; z-index:21}
+    .drawer.show{transform:translateY(0)}
+    .drawer-back.show{position:fixed;inset:0;background:var(--backdrop);display:block;z-index:20}
     .filters{display:grid;gap:10px}
-    .field{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px}
+    .field{background:rgba(255,255,255,0.55);border:1px solid var(--border);border-radius:12px;padding:10px}
     .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
     .field select,.field input[type="text"]{
       width:100%;background:#f8fafc;color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:10px
     }
     .toggle{display:flex;align-items:center;gap:8px;font-size:14px;color:#111827}
     .toggle input{transform:scale(1.1)}
-
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .btn.secondary{background:#e5e7eb;color:#111827;border:1px solid var(--border)}
-    .btn.neutral{background:#f3f4f6;color:#111827;border:1px solid var(--border)}
-
-    /* Card grid */
-    .list{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:14px}
-    @media (max-width:1100px){.list{grid-template-columns:1fr}}
-
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;gap:10px;flex-direction:column;box-shadow:0 8px 24px rgba(2,8,23,.05)}
-    .card h3{margin:0 0 6px;font-size:18px}
-    .k{color:var(--muted)}
-    .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
-    .badge{background:#f3f4f6;border:1px solid var(--border);color:#374151;padding:4px 8px;border-radius:999px;font-size:12px}
-    .cta{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
-    a.inline{color:#1d4ed8;text-decoration:none}
-
-    /* Mobile drawer for filters */
-    .drawer-back{display:none}
-    @media (max-width:900px){
-      .sidebar-col{display:none} /* hide fixed sidebar */
-      .drawer-back{position:fixed;inset:0;background:var(--backdrop);display:none;z-index:20}
-      .drawer{position:fixed;left:0;right:0;top:0;background:var(--panel);border-bottom:1px solid var(--border);
-              border-radius:0 0 16px 16px; padding:12px; box-shadow:0 12px 32px rgba(2,8,23,.2); transform:translateY(-110%); transition:transform .25s ease; z-index:21}
-      .drawer.show{transform:translateY(0)}
-      .drawer .actions{position:sticky;bottom:0;background:var(--panel);padding-top:8px}
-    }
+    .drawer .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 
     /* Popover */
     .popover{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:var(--backdrop);z-index:30}
     .popover.show{display:flex}
-    .sheet{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;max-width:520px;width:92%}
+    .sheet{background:rgba(255,255,255,0.85);backdrop-filter: blur(10px);border:1px solid var(--border);border-radius:16px;padding:16px;max-width:520px;width:92%}
     .sheet h4{margin:0 0 8px}
     .row{display:flex;gap:10px;align-items:center;margin:8px 0}
     .row input[type="text"]{flex:1;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:8px}
- body {
-  margin: 0;
-  font: 16px/1.55 system-ui, sans-serif;
-  color: var(--ink);
-  background: linear-gradient(to top, #a8e6a1 0%, #d6f5d6 50%, #f5fff5 100%);
-  background-attachment: fixed;
-}
-
-/* subtle rolling hills */
-body::before {
-  content: "";
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
-  background: radial-gradient(circle at 20% 100%, #6fbf73 200px, transparent 201px),
-              radial-gradient(circle at 80% 100%, #7fcf85 200px, transparent 201px);
-  background-repeat: no-repeat;
-  background-size: 50% 100%, 50% 100%;
-  z-index: -2;
-}
-
-/* panda illustration */
-body::after {
-  content: "";
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 120px;
-  height: 120px;
-  background: url('https://upload.wikimedia.org/wikipedia/commons/0/0f/Giant_Panda_vector.svg') no-repeat center/contain;
-  opacity: 0.9;
-  z-index: -1;
-}
   </style>
 </head>
 <body>
-  <header>
+  <header class="glass">
     <h1>OP Dashboard</h1>
     <p><em>I figure you're familiar with dashboards, so this should be easy! Would you like to go out with me?</em></p>
     <div class="top-actions">
@@ -118,25 +107,19 @@ body::after {
   </header>
 
   <div class="wrap">
-    <!-- Desktop sidebar -->
-    <aside class="panel sidebar-col">
-      <h2>Filters</h2>
-      <div class="filters" id="filtersDesktop"></div>
-    </aside>
-
     <main>
       <div id="list" class="list"></div>
     </main>
   </div>
 
-  <!-- Mobile drawer -->
+  <!-- Single Filters Drawer -->
   <div class="drawer-back" id="drawerBack"></div>
-  <div class="drawer" id="drawer">
-    <div class="filters" id="filtersMobile"></div>
+  <div class="drawer glass" id="drawer">
+    <div class="filters" id="filters"></div>
     <div class="actions">
       <button class="btn" id="applyDrawer">Apply</button>
-      <button class="btn neutral" id="closeDrawer">Close</button>
-      <button class="btn secondary" id="resetMobile">Reset</button>
+      <button class="btn ghost" id="closeDrawer">Close</button>
+      <button class="btn ghost" id="reset">Reset</button>
     </div>
   </div>
 
@@ -148,8 +131,8 @@ body::after {
       <div class="row"><input id="customPlan" type="text" placeholder="Add a note or your own plan (optional)"/></div>
       <div class="actions">
         <button class="btn" id="copyChoice">Copy link</button>
-        <button class="btn secondary" id="waChoice">WhatsApp</button>
-        <button class="btn secondary" id="cancelPop">Cancel</button>
+        <button class="btn ghost" id="waChoice">WhatsApp</button>
+        <button class="btn ghost" id="cancelPop">Cancel</button>
       </div>
     </div>
   </div>
@@ -158,7 +141,7 @@ body::after {
 // ---------- Owner contact ----------
 const OWNER_PHONE = '919838006777'; // WhatsApp number only
 
-// ---------- Plans (longer, date-friendly durations) ----------
+// ---------- Plans ----------
 const PLANS = [
   {
     id:'begum',
@@ -255,16 +238,16 @@ function setParam(k,v){
   history.replaceState(null,'', url.endsWith('?')?url.slice(0,-1):url);
 }
 
-// ---------- Build filter DOM (once) ----------
-function filterFormHTML(prefix=''){
+// ---------- Build single filter form ----------
+function filterFormHTML(){
   return `
     <div class="field">
-      <label for="${prefix}q">Search</label>
-      <input id="${prefix}q" type="text" placeholder="Search title, venue…" />
+      <label for="q">Search</label>
+      <input id="q" type="text" placeholder="Search title, venue…" />
     </div>
     <div class="field">
-      <label for="${prefix}loc">Location</label>
-      <select id="${prefix}loc">
+      <label for="loc">Location</label>
+      <select id="loc">
         <option value="">Any</option>
         <option value="South">South</option>
         <option value="Central">Central</option>
@@ -272,8 +255,8 @@ function filterFormHTML(prefix=''){
       </select>
     </div>
     <div class="field">
-      <label for="${prefix}day">Day</label>
-      <select id="${prefix}day">
+      <label for="day">Day</label>
+      <select id="day">
         <option value="">Any</option>
         <option>Weekday</option>
         <option>Weekend</option>
@@ -283,8 +266,8 @@ function filterFormHTML(prefix=''){
       </select>
     </div>
     <div class="field">
-      <label for="${prefix}time">Time of day</label>
-      <select id="${prefix}time">
+      <label for="time">Time of day</label>
+      <select id="time">
         <option value="">Any</option>
         <option>Morning</option>
         <option>Afternoon</option>
@@ -293,8 +276,8 @@ function filterFormHTML(prefix=''){
       </select>
     </div>
     <div class="field">
-      <label for="${prefix}commit">Time commitment</label>
-      <select id="${prefix}commit">
+      <label for="commit">Time commitment</label>
+      <select id="commit">
         <option value="">Any</option>
         <option>2–3 hrs</option>
         <option>3–4 hrs</option>
@@ -302,8 +285,8 @@ function filterFormHTML(prefix=''){
       </select>
     </div>
     <div class="field">
-      <label for="${prefix}type">Type</label>
-      <select id="${prefix}type">
+      <label for="type">Type</label>
+      <select id="type">
         <option value="">Any</option>
         <option>Culture</option>
         <option>Sport</option>
@@ -314,43 +297,32 @@ function filterFormHTML(prefix=''){
       </select>
     </div>
     <div class="field toggle">
-      <input id="${prefix}disable" type="checkbox" />
-      <label for="${prefix}disable">Disable filters</label>
-    </div>
-    <div class="actions ${prefix?'':'desktop-actions'}">
-      ${prefix?'':'<button class="btn secondary" id="reset">Reset</button>'}
+      <input id="disable" type="checkbox" />
+      <label for="disable">Disable filters</label>
     </div>
   `;
 }
+document.getElementById('filters').innerHTML = filterFormHTML();
 
-document.getElementById('filtersDesktop').innerHTML = filterFormHTML('');
-document.getElementById('filtersMobile').innerHTML  = filterFormHTML('m_');
-
-function syncFilterControls(prefix=''){
-  document.getElementById(`${prefix}q`).value = state.q;
-  document.getElementById(`${prefix}loc`).value = state.loc;
-  document.getElementById(`${prefix}day`).value = state.day;
-  document.getElementById(`${prefix}time`).value = state.time;
-  document.getElementById(`${prefix}commit`).value = state.commit;
-  document.getElementById(`${prefix}type`).value = state.type;
-  document.getElementById(`${prefix}disable`).checked = state.disabled;
+function syncControls(){
+  document.getElementById('q').value = state.q;
+  document.getElementById('loc').value = state.loc;
+  document.getElementById('day').value = state.day;
+  document.getElementById('time').value = state.time;
+  document.getElementById('commit').value = state.commit;
+  document.getElementById('type').value = state.type;
+  document.getElementById('disable').checked = state.disabled;
 }
 
-function bindFilterEvents(prefix='', live=false){
-  const evt = (id, event, cb)=>document.getElementById(`${prefix}${id}`).addEventListener(event, cb);
-  evt('q', live?'input':'change', e=>{ state.q=e.target.value; setParam('q', state.q); if(live) render(); });
+function bindFilterEvents(){
+  const on = (id, ev, cb)=>document.getElementById(id).addEventListener(ev, cb);
+  on('q','input', e=>{ state.q=e.target.value; setParam('q', state.q); });
   ['loc','day','time','commit','type'].forEach(k=>{
-    evt(k, 'change', e=>{ state[k]=e.target.value; setParam(k, state[k]); if(live) render(); });
+    on(k,'change', e=>{ state[k]=e.target.value; setParam(k, state[k]); });
   });
-  evt('disable','change', e=>{
-    state.disabled = e.target.checked; setParam('nofilters', state.disabled ? '1' : '');
-    render();
-  });
+  on('disable','change', e=>{ state.disabled = e.target.checked; setParam('nofilters', state.disabled ? '1' : ''); });
 }
-
-// desktop: live update; mobile: queued until Apply
-bindFilterEvents('', true);
-bindFilterEvents('m_', false);
+bindFilterEvents();
 
 // ---------- Active filter count ----------
 function activeCount(){
@@ -366,27 +338,21 @@ function updateActiveCount(){
 const drawer = document.getElementById('drawer');
 const back   = document.getElementById('drawerBack');
 document.getElementById('openDrawer').onclick = ()=>{
-  // copy desktop values into mobile controls
-  syncFilterControls('m_');
-  drawer.classList.add('show'); back.style.display='block';
+  syncControls();
+  drawer.classList.add('show'); back.classList.add('show');
 };
 document.getElementById('closeDrawer').onclick = ()=>{
-  drawer.classList.remove('show'); back.style.display='none';
+  drawer.classList.remove('show'); back.classList.remove('show');
 };
 document.getElementById('applyDrawer').onclick = ()=>{
-  // read mobile values into state + URL
-  ['q','loc','day','time','commit','type'].forEach(k=>{
-    const v = document.getElementById('m_'+k).value;
-    state[k] = v; setParam(k, v);
-  });
-  state.disabled = document.getElementById('m_disable').checked;
-  setParam('nofilters', state.disabled ? '1' : '');
+  drawer.classList.remove('show'); back.classList.remove('show');
   render();
-  drawer.classList.remove('show'); back.style.display='none';
 };
-document.getElementById('resetMobile').onclick = ()=>{
-  ['q','loc','day','time','commit','type'].forEach(k=>document.getElementById('m_'+k).value='');
-  document.getElementById('m_disable').checked=false;
+document.getElementById('reset').onclick = ()=>{
+  ['q','loc','day','time','commit','type'].forEach(k=>{ state[k]=''; setParam(k,''); });
+  state.disabled=false; setParam('nofilters','');
+  syncControls();
+  render();
 };
 
 // ---------- Helpers ----------
@@ -406,17 +372,14 @@ function passFilters(p){
 
 // ---------- Rendering ----------
 function render(){
-  // sync both UIs
-  syncFilterControls(''); syncFilterControls('m_');
   updateActiveCount();
-
   const list = document.getElementById('list');
   list.innerHTML = '';
 
   const items = PLANS.filter(passFilters);
   if(items.length === 0){
     const empty = document.createElement('div');
-    empty.className = 'card';
+    empty.className = 'card glass';
     empty.innerHTML = `<h3>No matching plans</h3><p class="k">Try clearing a filter or disable filters.</p>`;
     list.appendChild(empty);
   } else {
@@ -428,7 +391,7 @@ function render(){
 
 function planCard(p){
   const c = document.createElement('div');
-  c.className = 'card';
+  c.className = 'card glass';
   const timeBadge = (p.times||[]).join(' / ') || 'Any time';
   const dayBadge  = (p.days||[]).join(' / ') || 'Any day';
   c.innerHTML = `
@@ -452,7 +415,7 @@ function planCard(p){
 
 function ownPlanCard(){
   const c = document.createElement('div');
-  c.className = 'card';
+  c.className = 'card glass';
   c.innerHTML = `
     <div class="badges"><span class="badge">Custom</span></div>
     <h3>Make your own plan</h3>
@@ -470,12 +433,12 @@ function ownPlanCard(){
 
 function notInterestedCard(){
   const c = document.createElement('div');
-  c.className = 'card';
+  c.className = 'card glass';
   c.innerHTML = `
     <div class="badges"><span class="badge">Skip</span></div>
     <h3>Not interested</h3>
     <p class="k">Lovely effort — I'm going to pass this time.</p>
-    <div class="cta"><button class="btn secondary" id="niBtn">Send response</button></div>
+    <div class="cta"><button class="btn ghost" id="niBtn">Send response</button></div>
   `;
   setTimeout(()=>{
     document.getElementById('niBtn').onclick = ()=>{
@@ -485,7 +448,7 @@ function notInterestedCard(){
   return c;
 }
 
-// Copy filter link
+// Copy filter link (header)
 document.getElementById('copyLink').onclick = ()=>{
   navigator.clipboard.writeText(location.href)
     .then(()=>alert('Filter link copied!'))
@@ -539,17 +502,7 @@ document.getElementById('waChoice').onclick   = ()=> shareSelection('wa');
 
 // ---------- Initial mount ----------
 function init(){
-  // sync desktop controls to state and render
-  syncFilterControls(''); syncFilterControls('m_');
-  // desktop reset button
-  const resetBtn = document.getElementById('reset');
-  if(resetBtn){
-    resetBtn.onclick = ()=>{
-      ['q','loc','day','time','commit','type'].forEach(k=>{ state[k]=''; setParam(k,''); });
-      state.disabled=false; setParam('nofilters','');
-      render();
-    };
-  }
+  syncControls();
   render();
 }
 init();
