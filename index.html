@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Delhi Plan Picker</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; background:#fafafa; color:#333;}
+    h1 { margin-bottom:1rem; }
+    .filters { margin-bottom:1.5rem; }
+    select { margin:0 1rem 0 0; padding:0.3rem; }
+    .card { background:#fff; border-radius:12px; padding:1rem; margin:1rem 0; 
+            box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+    .card h2 { margin:0 0 0.5rem; font-size:1.2rem; }
+    .card p { margin:0.2rem 0; }
+    a { color:#0066cc; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    button { margin-top:0.5rem; padding:0.5rem 0.8rem; border:none; background:#0077cc; color:#fff; border-radius:6px; cursor:pointer;}
+    button:hover { background:#005fa3; }
+  </style>
+</head>
+<body>
+
+<h1>Plan Your Delhi Day</h1>
+
+<div class="filters">
+  <label>
+    Location:
+    <select id="locationFilter">
+      <option value="all">All</option>
+      <option value="North">North</option>
+      <option value="Central">Central</option>
+      <option value="South">South</option>
+    </select>
+  </label>
+  <label>
+    Time commitment:
+    <select id="timeFilter">
+      <option value="all">All</option>
+      <option value="2">~2 hours</option>
+      <option value="4">~4 hours</option>
+      <option value="halfday">Half-day</option>
+    </select>
+  </label>
+</div>
+
+<div id="plans"></div>
+
+<script>
+const plans = [
+  {
+    title: "Badass Begum: Women in Architecture, Old Delhi",
+    link: "https://www.district.in/events/badass-begum-women-architecture-in-old-delhi-aug30-2025-buy-tickets",
+    location: "Central",
+    time: "4",
+    description: "Heritage walk & discussion around women architects in Old Delhi."
+  },
+  {
+    title: "Badminton / Pickleball at Siri Fort",
+    link: "#",
+    location: "South",
+    time: "2",
+    description: "Play badminton or pickleball at Siri Fort Sports Complex."
+  },
+  {
+    title: "Daniel Sloss: The New Show",
+    link: "https://in.bookmyshow.com",
+    location: "Central",
+    time: "2",
+    description: "Comedy stand-up show by Daniel Sloss."
+  },
+  {
+    title: "Karaoke Night at Garage Delhi",
+    link: "#",
+    location: "Central",
+    time: "4",
+    description: "Sing your heart out at Garage Delhi on Tue/Thu."
+  },
+  {
+    title: "Open Mic: Comedy, Poetry, Storytelling, Music",
+    link: "https://www.district.in/events/comedy-poetry-storytelling-music-saturday-open-mic-delhi-nov30-2024-buy-tickets",
+    location: "Central",
+    time: "2",
+    description: "Weekend open mic with multiple art forms."
+  }
+];
+
+function renderPlans() {
+  const loc = document.getElementById("locationFilter").value;
+  const t = document.getElementById("timeFilter").value;
+  const container = document.getElementById("plans");
+  container.innerHTML = "";
+  plans.forEach(p => {
+    if ((loc === "all" || p.location === loc) &&
+        (t === "all" || p.time === t || (t==="halfday" && parseInt(p.time)>=4))) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h2>${p.title}</h2>
+        <p><strong>Location:</strong> ${p.location}</p>
+        <p><strong>Time:</strong> ${p.time==="halfday"?"Half-day":p.time+" hrs"}</p>
+        <p>${p.description}</p>
+        <p><a href="${p.link}" target="_blank">More details</a></p>
+        <button onclick="finalise('${p.title}')">Finalise</button>
+      `;
+      container.appendChild(card);
+    }
+  });
+}
+
+function finalise(title) {
+  const choice = confirm(`Finalise "${title}"?\n\nWould you like to add a meal option?`);
+  if (choice) alert(`"${title}" finalised! Meal option can be added.`);
+}
+
+document.getElementById("locationFilter").addEventListener("change", renderPlans);
+document.getElementById("timeFilter").addEventListener("change", renderPlans);
+
+renderPlans();
+</script>
+
+</body>
+</html>
