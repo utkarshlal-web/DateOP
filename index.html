@@ -1,123 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Delhi Plan Picker</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OP Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; background:#fafafa; color:#333;}
-    h1 { margin-bottom:1rem; }
-    .filters { margin-bottom:1.5rem; }
-    select { margin:0 1rem 0 0; padding:0.3rem; }
-    .card { background:#fff; border-radius:12px; padding:1rem; margin:1rem 0; 
-            box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-    .card h2 { margin:0 0 0.5rem; font-size:1.2rem; }
-    .card p { margin:0.2rem 0; }
-    a { color:#0066cc; text-decoration:none; }
-    a:hover { text-decoration:underline; }
-    button { margin-top:0.5rem; padding:0.5rem 0.8rem; border:none; background:#0077cc; color:#fff; border-radius:6px; cursor:pointer;}
-    button:hover { background:#005fa3; }
+    :root{
+      --bg:#fbfbfd; --panel:#ffffff; --card:#ffffff; --ink:#1f2937; --muted:#6b7280;
+      --accent:#2563eb; --chip:#eef2ff; --border: rgba(15, 23, 42, .12);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;background:var(--bg);
+      color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+    header{padding:28px 22px 10px}
+    h1{margin:0;font-size:28px;font-weight:800}
+    header p{margin:6px 0 0;color:var(--muted)}
+
+    .wrap{display:grid;grid-template-columns:320px 1fr;gap:18px;padding:0 22px 28px}
+    @media (max-width:900px){.wrap{grid-template-columns:1fr}}
+
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;position:sticky;top:12px;height:max-content;box-shadow:0 8px 24px rgba(2,8,23,.05)}
+    .panel h2{margin:6px 6px 10px;font-size:13px;text-transform:uppercase;color:var(--muted);letter-spacing:.12em}
+
+    .filters{display:grid;gap:10px}
+    .field{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px}
+    .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    select,input[type="text"]{width:100%;background:#f8fafc;color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:10px}
+
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{background:var(--chip);border:1px solid var(--border);color:#111827;padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer}
+    .chip.active{outline:2px solid var(--accent);background:#e0e7ff}
+
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{background:var(--accent);border:none;color:#fff;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer}
+    .btn.secondary{background:#e5e7eb;color:#111827;border:1px solid var(--border)}
+
+    .list{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:14px}
+    @media (max-width:1100px){.list{grid-template-columns:1fr}}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;gap:10px;flex-direction:column;box-shadow:0 8px 24px rgba(2,8,23,.05)}
+    .card h3{margin:0 0 6px;font-size:18px}
+    .k{color:var(--muted)}
+    .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+    .badge{background:#f3f4f6;border:1px solid var(--border);color:#374151;padding:4px 8px;border-radius:999px;font-size:12px}
+    .muted{color:#6b7280}
+
+    .cta{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
+    a.inline{color:#1d4ed8;text-decoration:none}
+
+    .popover{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:10}
+    .popover.show{display:flex}
+    .sheet{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;max-width:520px;width:92%}
+    .sheet h4{margin:0 0 8px}
+    .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+    .row input[type="text"]{flex:1;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:8px}
   </style>
 </head>
 <body>
+  <header>
+    <h1>OP Dashboard</h1>
+    <p><em>I figure you're familiar with dashboards, so this should be easy!</em></p>
+  </header>
 
-<h1>Plan Your Delhi Day</h1>
+  <div class="wrap">
+    <aside class="panel">
+      <h2>Filters</h2>
+      <div class="filters">
+        <div class="field">
+          <label for="q">Search</label>
+          <input id="q" type="text" placeholder="Search..." />
+        </div>
+        <div class="field"><label>Location</label><div id="loc-chips" class="chips"></div></div>
+        <div class="field"><label>Day</label><div id="day-chips" class="chips"></div></div>
+        <div class="field"><label>Time of day</label><div id="time-chips" class="chips"></div></div>
+        <div class="field"><label>Commitment</label><div id="commit-chips" class="chips"></div></div>
+        <div class="field"><label>Type</label><div id="type-chips" class="chips"></div></div>
+        <div class="actions">
+          <button class="btn" id="copyLink">Copy filter link</button>
+          <button class="btn secondary" id="reset">Reset</button>
+        </div>
+      </div>
+    </aside>
 
-<div class="filters">
-  <label>
-    Location:
-    <select id="locationFilter">
-      <option value="all">All</option>
-      <option value="North">North</option>
-      <option value="Central">Central</option>
-      <option value="South">South</option>
-    </select>
-  </label>
-  <label>
-    Time commitment:
-    <select id="timeFilter">
-      <option value="all">All</option>
-      <option value="2">~2 hours</option>
-      <option value="4">~4 hours</option>
-      <option value="halfday">Half-day</option>
-    </select>
-  </label>
-</div>
+    <main>
+      <div id="list" class="list"></div>
+    </main>
+  </div>
 
-<div id="plans"></div>
+  <!-- Popover -->
+  <div id="pop" class="popover">
+    <div class="sheet">
+      <h4 id="pop-title">Confirm your pick</h4>
+      <div class="row"><input type="checkbox" id="withMeal" /><label for="withMeal">With meal</label></div>
+      <div class="row"><input id="customPlan" type="text" placeholder="Add a note or your own plan"/></div>
+      <div class="actions">
+        <button class="btn" id="copyChoice">Copy link</button>
+        <button class="btn secondary" id="waChoice">WhatsApp</button>
+        <button class="btn secondary" id="cancelPop">Cancel</button>
+      </div>
+    </div>
+  </div>
 
 <script>
-const plans = [
+// ---------- Owner contact ----------
+const OWNER_PHONE = '919838006777'; // WhatsApp number only
+// ---------- Plans ----------
+const PLANS = [
   {
-    title: "Badass Begum: Women in Architecture, Old Delhi",
-    link: "https://www.district.in/events/badass-begum-women-architecture-in-old-delhi-aug30-2025-buy-tickets",
-    location: "Central",
-    time: "4",
-    description: "Heritage walk & discussion around women architects in Old Delhi."
+    id:'begum',
+    title:'Badass Begum: Women & Architecture in Old Delhi',
+    subtitle:'Heritage walk',
+    type:'Culture',
+    url:'https://www.district.in/events/badass-begum-women-architecture-in-old-delhi-aug30-2025-buy-tickets',
+    venue:'Old Delhi',location:'Central',
+    days:['Saturday','Weekend'],times:['Morning'],commitment:'2 hrs'
   },
-  {
-    title: "Badminton / Pickleball at Siri Fort",
-    link: "#",
-    location: "South",
-    time: "2",
-    description: "Play badminton or pickleball at Siri Fort Sports Complex."
-  },
-  {
-    title: "Daniel Sloss: The New Show",
-    link: "https://in.bookmyshow.com",
-    location: "Central",
-    time: "2",
-    description: "Comedy stand-up show by Daniel Sloss."
-  },
-  {
-    title: "Karaoke Night at Garage Delhi",
-    link: "#",
-    location: "Central",
-    time: "4",
-    description: "Sing your heart out at Garage Delhi on Tue/Thu."
-  },
-  {
-    title: "Open Mic: Comedy, Poetry, Storytelling, Music",
-    link: "https://www.district.in/events/comedy-poetry-storytelling-music-saturday-open-mic-delhi-nov30-2024-buy-tickets",
-    location: "Central",
-    time: "2",
-    description: "Weekend open mic with multiple art forms."
-  }
+  {id:'siri',title:'Badminton / Pickleball at Siri Fort',subtitle:'Court session',type:'Sport',url:'#',venue:'Siri Fort Sports Complex',location:'South',days:['Weekday','Weekend'],times:['Morning','Evening'],commitment:'2 hrs'},
+  {id:'sloss',title:'Daniel Sloss: The New Show',subtitle:'Stand-up (BMS)',type:'Comedy',url:'https://in.bookmyshow.com',venue:'Multiple venues',location:'Central',days:['Weekday','Weekend'],times:['Evening','Night'],commitment:'2 hrs'},
+  {id:'karaoke',title:'Karaoke @ Garage Delhi',subtitle:'Tue / Thu nights',type:'Music',url:'https://www.instagram.com/garageinc.delhi/?hl=en',venue:'Garage Delhi',location:'Central',days:['Tuesday','Thursday','Weekday'],times:['Evening','Night'],commitment:'2–4 hrs'},
+  {id:'openmic',title:'Saturday Open Mic – Comedy • Poetry • Storytelling • Music',subtitle:'District.in',type:'Open Mic',url:'https://www.district.in/events/comedy-poetry-storytelling-music-saturday-open-mic-delhi-nov30-2024-buy-tickets',venue:'Delhi',location:'Central',days:['Saturday','Weekend'],times:['Evening'],commitment:'2–4 hrs'},
+  {id:'escapecp',title:'Escape Room – The Hidden Hour (Connaught Place)',subtitle:'Solve clues, beat the clock',type:'Game',url:'https://www.thehiddenhour.com/delhi/connaught-place',venue:'Connaught Place',location:'Central',days:['Weekday','Weekend'],times:['Afternoon','Evening'],commitment:'2 hrs'},
+  {id:'escapesouth',title:'Escape Room – The Hidden Hour (South Delhi)',subtitle:'Pick a theme & crack codes',type:'Game',url:'https://www.thehiddenhour.com/delhi/connaught-place',venue:'South Delhi',location:'South',days:['Weekday','Weekend'],times:['Afternoon','Evening'],commitment:'2 hrs'}
 ];
+const OWN_ID='ownplan'; const NI_ID='notinterested';
+  // ---------- Filter options ----------
+const LOC_CHIPS=['Central','South','North','Anywhere'];
+const DAY_CHIPS=['Weekday','Weekend','Tuesday','Thursday','Saturday'];
+const TIME_CHIPS=['Morning','Afternoon','Evening','Night'];
+const COMMIT_CHIPS=['1 hr','2 hrs','4 hrs','Half-day'];
+const TYPE_CHIPS=['Culture','Sport','Comedy','Music','Open Mic','Game'];
 
-function renderPlans() {
-  const loc = document.getElementById("locationFilter").value;
-  const t = document.getElementById("timeFilter").value;
-  const container = document.getElementById("plans");
-  container.innerHTML = "";
-  plans.forEach(p => {
-    if ((loc === "all" || p.location === loc) &&
-        (t === "all" || p.time === t || (t==="halfday" && parseInt(p.time)>=4))) {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <h2>${p.title}</h2>
-        <p><strong>Location:</strong> ${p.location}</p>
-        <p><strong>Time:</strong> ${p.time==="halfday"?"Half-day":p.time+" hrs"}</p>
-        <p>${p.description}</p>
-        <p><a href="${p.link}" target="_blank">More details</a></p>
-        <button onclick="finalise('${p.title}')">Finalise</button>
-      `;
-      container.appendChild(card);
-    }
+const state={q:''};
+
+function chipRow(el,items,key){
+  el.innerHTML='';
+  items.forEach(val=>{
+    const c=document.createElement('button');
+    c.type='button';
+    c.className='chip'+(state[key]===val?' active':'');
+    c.textContent=val;
+    c.onclick=()=>{state[key]=(state[key]===val?'':val);render();};
+    el.appendChild(c);
   });
 }
-
-function finalise(title) {
-  const choice = confirm(`Finalise "${title}"?\n\nWould you like to add a meal option?`);
-  if (choice) alert(`"${title}" finalised! Meal option can be added.`);
+function passFilters(p){
+  if(state.q && !p.title.toLowerCase().includes(state.q.toLowerCase())) return false;
+  if(state.location && state.location!=='Anywhere' && p.location!==state.location) return false;
+  if(state.day && !(p.days||[]).includes(state.day)) return false;
+  if(state.time && !(p.times||[]).includes(state.time)) return false;
+  if(state.commit && p.commitment!==state.commit) return false;
+  if(state.type && p.type!==state.type) return false;
+  return true;
 }
+function render(){
+  document.getElementById('q').value=state.q;
+  chipRow(document.getElementById('loc-chips'),LOC_CHIPS,'location');
+  chipRow(document.getElementById('day-chips'),DAY_CHIPS,'day');
+  chipRow(document.getElementById('time-chips'),TIME_CHIPS,'time');
+  chipRow(document.getElementById('commit-chips'),COMMIT_CHIPS,'commit');
+  chipRow(document.getElementById('type-chips'),TYPE_CHIPS,'type');
+  const list=document.getElementById('list'); list.innerHTML='';
+  PLANS.filter(passFilters).forEach(p=>list.appendChild(planCard(p)));
+  list.appendChild(ownPlanCard()); list.appendChild(notInterestedCard());
+}
+function planCard(p){
+  const c=document.createElement('div'); c.className='card';
+  c.innerHTML=`<div class="badges"><span class="badge">${p.location}</span><span class="badge">${p.type}</span><span class="badge">${p.commitment}</span></div>
+  <h3>${p.title}</h3><div class="k">${p.subtitle}</div><div class="k"><strong>Venue:</strong> ${p.venue}</div>
+  <div class="cta">${p.url?`<a class="inline" href="${p.url}" target="_blank">More details</a>`:''}<button class="btn" data-confirm="${p.id}">Confirm</button></div>`;
+  setTimeout(()=>{c.querySelector('button[data-confirm]').onclick=()=>openPick(p.id);},0);return c;
+}
+function ownPlanCard(){const c=document.createElement('div');c.className='card';
+  c.innerHTML=`<div class="badges"><span class="badge">Custom</span></div><h3>Make your own plan</h3>
+  <input id="ownPlanInput" type="text" placeholder="e.g., India Gate + coffee"/>
+  <div class="cta"><button class="btn" id="ownConfirm">Confirm</button></div>`;
+  setTimeout(()=>{document.getElementById('ownConfirm').onclick=()=>openPick(OWN_ID,document.getElementById('ownPlanInput').value);},0);
+  return c;}
+function notInterestedCard(){const c=document.createElement('div');c.className='card';
+  c.innerHTML=`<div class="badges"><span class="badge">Skip</span></div><h3>Not interested</h3>
+  <p class="k">Lovely effort — I'm going to pass this time.</p><div class="cta"><button class="btn secondary" id="niBtn">Send response</button></div>`;
+  setTimeout(()=>{document.getElementById('niBtn').onclick=()=>shareSelection(NI_ID);},0);return c;}
 
-document.getElementById("locationFilter").addEventListener("change", renderPlans);
-document.getElementById("timeFilter").addEventListener("change", renderPlans);
+document.getElementById('q').addEventListener('input',e=>{state.q=e.target.value;render();});
+document.getElementById('copyLink').onclick=()=>{navigator.clipboard.writeText(location.href).then(()=>alert('Filter link copied!'))};
+document.getElementById('reset').onclick=()=>{Object.keys(state).forEach(k=>state[k]='');render();};
 
-renderPlans();
+const pop=document.getElementById('pop');const withMeal=document.getElementById('withMeal');const customPlan=document.getElementById('customPlan');let selected='';
+function openPick(id,txt=''){selected=id;const plan=PLANS.find(p=>p.id===id);document.getElementById('pop-title').textContent=`Confirm: ${plan?plan.title:(id===OWN_ID?'Your plan':'')}`;withMeal.checked=false;customPlan.value=txt||'';pop.classList.add('show');}
+document.getElementById('cancelPop').onclick=()=>pop.classList.remove('show');
+document.getElementById('copyChoice').onclick=()=>shareSelection(selected,withMeal.checked,customPlan.value);
+document.getElementById('waChoice').onclick=()=>shareSelection(selected,withMeal.checked,customPlan.value,'wa');
+
+function shareSelection(id,meal,txt,via){const plan=PLANS.find(p=>p.id===id);const title=plan?plan.title:(id===OWN_ID?txt:'Not interested');
+const msg=`OP Dashboard choice:\n${title}${meal?' (with meal)':''}${txt?`\nNote: ${txt}`:''}\n${location.href}`;
+if(via==='wa'){window.open(`https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent(msg)}`,'_blank');}
+else{navigator.clipboard.writeText(msg).then(()=>alert('Choice copied!'));}
+pop.classList.remove('show');}
+
+render();
 </script>
-
 </body>
 </html>
