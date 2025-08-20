@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -158,7 +157,7 @@
 // ---------- Owner contact ----------
 const OWNER_PHONE = '919838006777'; // WhatsApp number only
 
-// ---------- Plans (longer date-friendly durations) ----------
+// ---------- Plans (longer, date-friendly durations) ----------
 const PLANS = [
   {
     id:'begum',
@@ -262,6 +261,7 @@ function syncControls(){
   document.getElementById('commit').value = state.commit;
   document.getElementById('type').value = state.type;
 }
+
 ['q','loc','day','time','commit','type'].forEach(id=>{
   document.getElementById(id).addEventListener(id==='q'?'input':'change', e=>{
     state[id] = e.target.value;
@@ -358,7 +358,6 @@ function notInterestedCard(){
   `;
   setTimeout(()=>{
     document.getElementById('niBtn').onclick = ()=>{
-      // Open popover so WA/Copy works the same way
       openPick(NI_ID, 'Not interested');
     };
   },0);
